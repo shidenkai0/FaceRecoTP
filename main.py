@@ -23,6 +23,10 @@ def create_dict(label_matrix):
     model.train(label_matrix.values(), np.array(label_matrix.keys()))
     return model
 
+def read_matrix_file(filename):
+    print filename
+    return cv2.imread(filename, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+
 def predict_image_from_model(model, image):
     return model.predict(image)
 
@@ -93,12 +97,17 @@ def prepare_training(file):
     training_data, testing_data = split_test_training_data(lines)
     return training_data, testing_data
 
-def create_label_matrix(input_file):
-    label_dict={}
+
+def create_label_matrix_dict(input_file):
+    """ Create dict of label -> matricies from file """
+    ### for every line, if key exists, insert into dict, else append
+    label_dict = {}
 
     for line in input_file:
+        ## split on the ';' in the csv separating filename;label
         filename, label = line.strip().split(';')
 
+        ##update the current key if it exists, else append to it
         if label_dict.has_key(int(label)):
             current_files = label_dict.get(label)
             np.append(current_files,read_matrix_file(filename))
@@ -112,28 +121,39 @@ def split_test_training_data(data, ratio=0.2):
     random.shuffle(data)
     return data[test_size:], data[:test_size]
 
-def read_matrix_file(filename):
-    return cv2.imread(filename, cv2.CV_LOAD_IMAGE_GRAYSCALE)
+
+def as_row_matrix(X):
+    if len(X) == 0:
+        return np.array([])
+    mat = np.empty((0, X[0].size), dtype=X[0].dtype)
 
 
 def main():
 
 
-    BASE_PATH="/home/guillaume/PycharmProjects/test_webcam/pictures"
+    BASE_PATH="/home/guillaume/PycharmProjects/FaceRecoTP/pictures"
     SEPARATOR=";"
     label = 0
     listefile = os.listdir(BASE_PATH)
-    print listefile
-
 
     #myfile = open('names.csv','wb')
     #wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     #wr.writerow(listefile)
-    csvfile = open ("names.csv", 'r')
-    print csvfile
+    csvfile = open ("test_names.csv", 'r')
+
     training_data, testing_data = prepare_training(csvfile)
-    data_dict = create_label_matrix(training_data)
+    data_dict = create_label_matrix_dict(training_data)
     model = create_dict(data_dict)
+
+
+    #model = create_dict(dict_test)
+    for linen in testing_data:
+        print linen
+
+    for line in testing_data:
+        filename, label =  line.strip().split(';')
+        predicted_label = predict_image_from_model(model, read_matrix_file(filename))
+        print 'Predicted: %(predicted)s  Actual: %(actual)s' %  {"predicted": predicted_label[0], "actual": label}
 
     try:
         video_src = sys.argv[1]
@@ -157,8 +177,6 @@ def main():
             #for (ex,ey,ew,eh) in eyes:
             #   cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
 
-
-
         cv2.imshow('Momo', frame)
 
         ch = 0xFF & cv2.waitKey(1)
@@ -171,21 +189,31 @@ def main():
             dirname = 'pictures'
 
             crop_frame2 = normalize_face_size(crop_frame)
-            cv2.imshow("cropped2", np.asarray(crop_frame2))
-            cv2.imwrite(os.path.join(dirname,'saving'+temps+'.pgm'), np.asarray(crop_frame2))
+           # cv2.imshow("cropped2", np.asarray(crop_frame2))
+           # cv2.imshow("cropped_gray", gray)
+
+            crop_frame_gray = gray[y:y+h, x:x+w]
+
+            new_image_resized_gray = normalize_face_size(crop_frame_gray)
+            crop_gray_array= np.asarray(new_image_resized_gray)
+            #print crop_gray_array[50,50]
+
+            cv2.imshow("little_cropped_gray", np.asarray(new_image_resized_gray))
+            cv2.imwrite(os.path.join(dirname,'saving'+temps+'.pgm'), np.asarray(new_image_resized_gray))
            # new_image=normalize_image_for_face_detection(crop_frame)
            #cv2.imshow("normalize", new_image)
+            predicted_label = predict_image_from_model(model, np.asarray(new_image_resized_gray))
+            print 'Label reconnu: %(predicted)s ' %  {"predicted": predicted_label[0]}
 
-            for line in testing_data:
-               filename, label = line.strip.split(";")
-               predicted_label = predict_image_from_model(model, read_matrix_file(filename))
-               print 'predicted : %(predicted)s Actual: %(actual)s' % {"predicted":predicted_label[0], "actual":label}
+
 
         elif ch == 114:
             for names in listefile:
                 wanted_resize = cv2.imread(names)
                 finally_cropped = normalize_face_size(wanted_resize)
                 cv2.imwrite('new'+names, np.asarray(finally_cropped))
+        elif ch == 116:
+            print "pressed T"
 
 
 
