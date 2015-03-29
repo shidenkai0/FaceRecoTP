@@ -106,7 +106,6 @@ def create_label_matrix_dict(input_file):
     for line in input_file:
         ## split on the ';' in the csv separating filename;label
         filename, label = line.strip().split(';')
-
         ##update the current key if it exists, else append to it
         if label_dict.has_key(int(label)):
             current_files = label_dict.get(label)
@@ -131,29 +130,40 @@ def as_row_matrix(X):
 def main():
 
 
-    BASE_PATH="/home/guillaume/PycharmProjects/FaceRecoTP/pictures"
+    BASE_PATH="pictures"
     SEPARATOR=";"
-    label = 0
-    listefile = os.listdir(BASE_PATH)
 
+    ifile= open("/home/guillaume/PycharmProjects/FaceRecoTP/test_names.csv","wb")
+    writer = csv.writer(ifile, delimiter=';')
+    data = []
+    label = 0
+    corresponding = []
+    for dirname, dirnames, filenames in os.walk(BASE_PATH):
+        for subdirname in dirnames:
+            subject_path = os.path.join(dirname, subdirname)
+            for filename in os.listdir(subject_path):
+                abs_path = "%s/%s" % (subject_path, filename)
+                row = "%s%s%s" % (abs_path, SEPARATOR, label)
+                data.append(row.split(";"))
+            corresponding.append(subdirname)
+            label = label + 1
+
+
+    for line4 in data:
+        writer.writerow(line4)
     #myfile = open('names.csv','wb')
     #wr = csv.writer(myfile, quoting=csv.QUOTE_ALL)
     #wr.writerow(listefile)
+    print corresponding
+    ifile.close()
     csvfile = open ("test_names.csv", 'r')
 
     training_data, testing_data = prepare_training(csvfile)
+
     data_dict = create_label_matrix_dict(training_data)
+
     model = create_dict(data_dict)
 
-
-    #model = create_dict(dict_test)
-    for linen in testing_data:
-        print linen
-
-    for line in testing_data:
-        filename, label =  line.strip().split(';')
-        predicted_label = predict_image_from_model(model, read_matrix_file(filename))
-        print 'Predicted: %(predicted)s  Actual: %(actual)s' %  {"predicted": predicted_label[0], "actual": label}
 
     try:
         video_src = sys.argv[1]
@@ -202,16 +212,19 @@ def main():
             cv2.imwrite(os.path.join(dirname,'saving'+temps+'.pgm'), np.asarray(new_image_resized_gray))
            # new_image=normalize_image_for_face_detection(crop_frame)
            #cv2.imshow("normalize", new_image)
+
+
+
+
+        elif ch == 114: #if R pressed
+            crop_frame=frame[y:y+h, x:x+w]
+            cv2.imshow("cropped", crop_frame)
+
+            crop_frame_gray = gray[y:y+h, x:x+w]
+
+            new_image_resized_gray = normalize_face_size(crop_frame_gray)
             predicted_label = predict_image_from_model(model, np.asarray(new_image_resized_gray))
-            print 'Label reconnu: %(predicted)s ' %  {"predicted": predicted_label[0]}
-
-
-
-        elif ch == 114:
-            for names in listefile:
-                wanted_resize = cv2.imread(names)
-                finally_cropped = normalize_face_size(wanted_resize)
-                cv2.imwrite('new'+names, np.asarray(finally_cropped))
+            print 'Personne reconnue: %(predicted)s, label: %(label)s ' %  {"predicted": corresponding[predicted_label[0]], "label":predicted_label[0]}
         elif ch == 116:
             print "pressed T"
 
