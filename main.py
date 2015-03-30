@@ -11,6 +11,8 @@ import csv
 import random
 import math
 import numpy as np
+import Tkinter as tk
+from PIL import Image, ImageTk
 
 IMAGE_SCALE=2
 normalize_face_dimensions = (100,100)
@@ -126,6 +128,22 @@ def as_row_matrix(X):
         return np.array([])
     mat = np.empty((0, X[0].size), dtype=X[0].dtype)
 
+def show_frame():
+    _, frame = cap.read()
+    frame = cv2.flip(frame, 1)
+    cv2image = cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+    img = Image.fromarray(cv2image)
+    imgtk = ImageTk.PhotoImage(image=img)
+    lmain.imgtk = imgtk
+    lmain.configure(image=imgtk)
+    lmain.after(10, show_frame)
+
+def click_button():
+    print "salut"
+
+
+
+
 
 def main():
 
@@ -173,11 +191,23 @@ def main():
     cam = cv2.VideoCapture(video_src)
     cam.set(3, 1280)
     cam.set(4, 720)
-    print cam
+
+    root = tk.Tk()
+    root.bind('<Escape>', lambda e: root.quit())
+    lmain = tk.Label(root)
+    lmain.pack()
+
+    B = tk.Button(root, text ="Hello", command = click_button())
+    B.pack()
+
+
     i=0
     while True:
         ret, frame = cam.read()
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        color_frame=cv2.cvtColor(frame, cv2.COLOR_BGR2RGBA)
+
+
         faces = face_cascade.detectMultiScale(frame, 1.3, 5)
         for (x,y,w,h) in faces:
             cv2.rectangle(frame,(x,y),(x+w,y+h),(255,0,0),2)
@@ -187,7 +217,12 @@ def main():
             #for (ex,ey,ew,eh) in eyes:
             #   cv2.rectangle(roi_color,(ex,ey),(ex+ew,ey+eh),(0,255,0),2)
 
-        cv2.imshow('Momo', frame)
+        #cv2.imshow('Momo', frame)
+        img = Image.fromarray(frame)
+        imgtk = ImageTk.PhotoImage(image=img)
+        lmain.imgtk = imgtk
+        lmain.configure(image=imgtk)
+
 
         ch = 0xFF & cv2.waitKey(1)
         if ch == 27:
@@ -227,8 +262,7 @@ def main():
             print 'Personne reconnue: %(predicted)s, label: %(label)s ' %  {"predicted": corresponding[predicted_label[0]], "label":predicted_label[0]}
         elif ch == 116:
             print "pressed T"
-
-
+        root.update()
 
 
 
