@@ -1,8 +1,6 @@
 __author__ = 'mohamed'
 
 import sys
-import datetime
-import os
 
 import cv2
 
@@ -25,7 +23,13 @@ def main():
     eigen_recognizer = recognizers.EigenRecognizer()
     fisher_recognizer = recognizers.FisherRecognizer()
 
+    tester = recognizers.RecognizerTest(eigen_recognizer, "orl_faces")
+
+    print "Test Result"
+    print tester.run_test()
+
     # Main loop
+    """
     while True:
         ret, frame = cam.read()
         frame = cv2.cvtColor(frame, cv2.cv.CV_BGR2GRAY)
@@ -52,7 +56,7 @@ def main():
 
             for face in tracker.faces:
                 cv2.imwrite(os.path.join(dirname, 'saving' + temps + '.pgm'), face.normalized_face(frame))
-
+"""
 
 if __name__ == '__main__':
     main()

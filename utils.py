@@ -21,5 +21,4 @@ def as_row_matrix(X):
 
 
 def read_gray(filename):
-    print filename
     return cv2.imread(filename, cv2.CV_LOAD_IMAGE_GRAYSCALE)

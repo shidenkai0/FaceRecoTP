@@ -10,22 +10,41 @@ import utils
 
 
 class RecognizerTest(object):
-    def __init__(self, recognizer, db_path="pictures", test_path="test"):
+    def __init__(self, recognizer, test_path="test"):
         assert isinstance(recognizer, FaceRecognizer)
         self.Recognizer = recognizer
-        self.TEST_PATH = test_path
+        self.TestDbManager = FaceDbManager(test_path, "test_names.csv")
         self.DB_PATH = self.Recognizer.db_manager.IMAGES_PATH
 
-    def testReco(self):
-        print 1
+    def run_test(self):
+        csv_test = open(self.TestDbManager.CSV_PATH, mode='r')
 
+        successful = 0
+        failed = 0
+
+        for line in csv_test:
+            filename, label = line.strip().split(';')
+
+            face_to_test = utils.read_gray(filename)
+            predicted_label, distance = self.Recognizer.predict(face_to_test)
+            print predicted_label, label
+            if int(label) == int(predicted_label):
+                print "Yay"
+                successful += 1
+            else:
+                print "No"
+                failed += 1
+
+        return float(successful) / (float(successful + failed))
 
 class FaceDbManager(object):
-    def __init__(self, images_path='pictures', csv_path='names.csv'):
+    def __init__(self, images_path='orl_faces', csv_path='names.csv'):
         self.IMAGES_PATH = images_path
         self._faces_dictionary = None
         self.CSV_PATH = csv_path
         self.LabelNameTable = None
+        self.create_csv()
+        self.create_dict()
 
     def create_dict(self):
         label_dict = {}
@@ -76,8 +95,6 @@ class FaceDbManager(object):
 class FaceRecognizer(object):
     def __init__(self):
         self.db_manager = FaceDbManager()
-        self.db_manager.create_csv()
-        self.db_manager.create_dict()
         self.recognizer = None
 
     def predict(self, face_image):
