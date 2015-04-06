@@ -9,11 +9,23 @@ import cv2
 import utils
 
 
+class RecognizerTest(object):
+    def __init__(self, recognizer, db_path="pictures", test_path="test"):
+        assert isinstance(recognizer, FaceRecognizer)
+        self.Recognizer = recognizer
+        self.TEST_PATH = test_path
+        self.DB_PATH = self.Recognizer.db_manager.IMAGES_PATH
+
+    def testReco(self):
+        print 1
+
+
 class FaceDbManager(object):
-    def __init__(self, images_path='pictures'):
+    def __init__(self, images_path='pictures', csv_path='names.csv'):
         self.IMAGES_PATH = images_path
         self._faces_dictionary = None
-        self.CSV_PATH = "test_names.csv"
+        self.CSV_PATH = csv_path
+        self.LabelNameTable = None
 
     def create_dict(self):
         label_dict = {}
@@ -57,7 +69,7 @@ class FaceDbManager(object):
         for line4 in data:
             writer.writerow(line4)
 
-        print corresponding
+        self.LabelNameTable = corresponding
         csv_file.close()
 
 

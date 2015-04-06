@@ -11,9 +11,10 @@ import recognizers
 
 
 def main():
+
     try:
         video_src = sys.argv[1]
-    except:
+    except(IndexError):
         video_src = 0
 
     cam = cv2.VideoCapture(video_src)
