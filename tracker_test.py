@@ -23,10 +23,12 @@ def main():
     eigen_recognizer = recognizers.EigenRecognizer()
     fisher_recognizer = recognizers.FisherRecognizer()
 
-    tester = recognizers.RecognizerTest(eigen_recognizer, "orl_faces")
-
-    print "Test Result"
-    print tester.run_test()
+    eigen_tester = recognizers.RecognizerTest(eigen_recognizer, "orl_faces")
+    fisher_tester = recognizers.RecognizerTest(fisher_recognizer, "orl_faces")
+    print "Eigen Test Result"
+    print eigen_tester.run_test()
+    print "Fisher Test Result"
+    print fisher_tester.run_test()
 
     # Main loop
     """

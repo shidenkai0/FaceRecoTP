@@ -27,12 +27,12 @@ class RecognizerTest(object):
 
             face_to_test = utils.read_gray(filename)
             predicted_label, distance = self.Recognizer.predict(face_to_test)
-            print predicted_label, label
+            # print predicted_label, label
             if int(label) == int(predicted_label):
-                print "Yay"
+                # print "Yay"
                 successful += 1
             else:
-                print "No"
+                # print "No"
                 failed += 1
 
         return float(successful) / (float(successful + failed))
