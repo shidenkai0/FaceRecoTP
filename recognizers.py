@@ -37,6 +37,7 @@ class RecognizerTest(object):
 
         return float(successful) / (float(successful + failed))
 
+
 class FaceDbManager(object):
     def __init__(self, images_path='pictures', csv_path='names.csv'):
         self.IMAGES_PATH = images_path
@@ -51,7 +52,6 @@ class FaceDbManager(object):
         csv_file = open(self.CSV_PATH, mode='r')
 
         for line in csv_file:
-
             filename, label = line.strip().split(';')
             # update the current key if it exists, else append to it
             if label_dict.has_key(int(label)):
@@ -98,6 +98,10 @@ class FaceRecognizer(object):
         self.recognizer = None
 
     def predict(self, face_image):
+        if not utils.is_gray(face_image):
+            cv2.cvtColor(face_image, cv2.cv.BGR2GRAY)
+            return self.recognizer.predict(face_image)
+
         return self.recognizer.predict(face_image)
 
 

@@ -3,6 +3,8 @@ import numpy as np
 
 import cv2
 
+import rects
+
 import trackers
 
 
@@ -33,13 +35,26 @@ def extract_faces_from_video(filename, output_dir=''):
     while video_cap.isOpened():
         ret, frame = video_cap.read()
 
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-
         cv2.imshow('frame', frame)
 
 
+def face_regions():
+    x, y, w, h = (0, 0, 200, 200)
+    white = (255, 255, 255)
+    img = read_gray('momo.pgm')
+    searchRect = (x + w / 7, y, w * 2 / 7, h / 2)
+    rects.outline_rect(img, searchRect, white)
+    searchRect = (x + w * 4 / 7, y, w * 2 / 7, h / 2)
+    rects.outline_rect(img, searchRect, white)
+    searchRect = (x + w / 4, y + h / 4, w / 2, h / 2)
+    rects.outline_rect(img, searchRect, white)
+    searchRect = (x + w / 6, y + h * 2 / 3, w * 2 / 3, h / 3)
+    rects.outline_rect(img, searchRect, white)
+
+    cv2.imwrite('momo_outlined.png', img)
+
 def main():
-    extract_faces_from_video('Alex.mpg')
+    face_regions()
 
 
 if __name__ == '__main__':

@@ -3,11 +3,9 @@ __author__ = 'guillaume'
 import Tkinter as tk
 import os
 import datetime
-import numpy as np
 from PIL import Image, ImageTk
 
 import cv2
-import cv
 
 import trackers
 import recognizers
@@ -42,15 +40,6 @@ image_open = tk.Label(left_frame)
 image_open.pack()
 
 
-def normalize_face_size(face):
-    #fonction juste pour effectuer la sauvegarde de la photo
-    normalized_face_dimensions = (200, 200)
-    face_as_array = np.asarray(face)
-    resized_face = cv2.resize(face_as_array, normalized_face_dimensions)
-    resized_face = cv.fromarray(resized_face)
-    return resized_face
-
-
 def show_result(label, metric, tr, type=0):
     #fonction appelee pour changer l'image dans le petit cadre et resultat et %
     pourcentage = str(metric)
@@ -71,8 +60,8 @@ def show_result(label, metric, tr, type=0):
 
         print label
         #affichage de la ligne resultat
-        Eigenresult.configure(text="")
-        Fisherresult.configure(text="")
+        eigen_result.configure(text="")
+        fisher_result.configure(text="")
         R.configure(text="Resultat: " + name_result + " ( " + pourcentage + " )")
         #affichage de l image en bas a droite
     elif tr == 1:  #temps reel
@@ -83,9 +72,9 @@ def show_result(label, metric, tr, type=0):
             R.configure(text="")
             image_result.configure(image="")
             if type == 1:
-                Eigenresult.configure(text="Resultat eigen: " + name_result + " ( " + pourcentage + " )")
+                eigen_result.configure(text="Resultat eigen: " + name_result + " ( " + pourcentage + " )")
             elif type == 2:
-                Fisherresult.configure(text="Resultat fisher: " + name_result + " ( " + pourcentage + " )")
+                fisher_result.configure(text="Resultat fisher: " + name_result + " ( " + pourcentage + " )")
 
 
 def recognize_eigenfaces(frame, tr):
@@ -138,16 +127,17 @@ def save_frame():
 def show_frame():
     global frame
     _, frame = cap.read()
+    framecolor = cv2.cvtColor(frame, cv2.cv.CV_BGR2RGBA)
     frame = cv2.cvtColor(frame, cv2.cv.CV_BGR2GRAY)
     if choix_r.get() == 2:
-        tracker.drawDebugRects(frame)
+        tracker.drawDebugRects(framecolor)
     tracker.refresh(frame)
     if choix_tr.get() == 2:
         recognize_fisherfaces(frame, 1)
         recognize_eigenfaces(frame, 1)
 
     frame = cv2.flip(frame, 1)
-    cv2image = frame
+    cv2image = framecolor
     img = Image.fromarray(cv2image)
     imgtk = ImageTk.PhotoImage(image=img)
     image_open.imgtk = imgtk
@@ -194,11 +184,11 @@ B.pack()
 R = tk.Label(right_frame)
 R.pack()
 
-Eigenresult = tk.Label(right_frame)
-Eigenresult.pack()
+eigen_result = tk.Label(right_frame)
+eigen_result.pack()
 
-Fisherresult = tk.Label(right_frame)
-Fisherresult.pack()
+fisher_result = tk.Label(right_frame)
+fisher_result.pack()
 
 #image created called at the initialisation
 

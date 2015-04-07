@@ -99,7 +99,8 @@ class FaceTracker(object):
                 searchRect = (x + w / 7, y, w * 2 / 7, h / 2)
                 face.leftEyeRect = self._detect_one_object(self._eyeClassifier, image, searchRect, 64)
                 # Detect right eye
-                searchRect = (x + w * 4 / 7, y, w * 2 / 7, h / 2)
+                searchRect = (x + w * 4 / 7, y, w * 2 / 7, h
+                              / 2)
                 face.rightEyeRect = self._detect_one_object(self._eyeClassifier, image, searchRect, 64)
                 # Detect Nose
                 searchRect = (x + w / 4, y + h / 4, w / 2, h / 2)
