@@ -38,7 +38,7 @@ class RecognizerTest(object):
         return float(successful) / (float(successful + failed))
 
 class FaceDbManager(object):
-    def __init__(self, images_path='orl_faces', csv_path='names.csv'):
+    def __init__(self, images_path='pictures', csv_path='names.csv'):
         self.IMAGES_PATH = images_path
         self._faces_dictionary = None
         self.CSV_PATH = csv_path
@@ -93,8 +93,8 @@ class FaceDbManager(object):
 
 
 class FaceRecognizer(object):
-    def __init__(self):
-        self.db_manager = FaceDbManager()
+    def __init__(self, img_path='pictures'):
+        self.db_manager = FaceDbManager(images_path=img_path)
         self.recognizer = None
 
     def predict(self, face_image):
